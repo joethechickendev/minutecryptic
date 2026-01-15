@@ -240,7 +240,7 @@
     })
 
     checkBtn.addEventListener("click", () => {
-    const guess = boxes.map(b => b.value).join("");
+    const guess = boxes.map(b => b.value === "-" ? " " : b.value).join("");
     const correct = guess.toLowerCase() === answer.toLowerCase();
 
     if (!correct) {
