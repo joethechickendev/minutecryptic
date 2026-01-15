@@ -123,48 +123,64 @@
 
     console.log(answerChars)
 
-    answerChars.forEach((ch, i) => {
+    answerChars.forEach((ch, idx) => {
         const input = document.createElement("input"); 
         input.className = "letter-box";
         input.maxLength = 1;
         input.autocomplete = "off";
         input.spellcheck = false;
-        input.dataset.index = i;
-
+        input.dataset.index = idx;
+    
+        if (ch === " ") {
+            input.value = "-";      // Set the dash
+            input.readOnly = true;  // Prevent typing
+            input.tabIndex = -1;    // Skip when tabbing
+            input.classList.add("separator");
+        }
+    
         row.appendChild(input);
-        
     });
 
     const boxes = Array.from(root.querySelectorAll(".letter-box"));
 
+    const getValidBox = (index, direction) => {
+        let nextIdx = index + direction;
+        while (boxes[nextIdx] && boxes[nextIdx].readOnly) {
+            nextIdx += direction;
+        }
+        return boxes[nextIdx];
+    };
+
     boxes.forEach((box, idx) => {
       box.addEventListener("input", () => {
+        if (box.readOnly) return; 
         box.value = box.value.slice(0, 1);
-        if (box.value && idx < boxes.length - 1) {
-          boxes[idx + 1].focus();
+        
+        if (box.value) {
+            const next = getValidBox(idx, 1);
+            if (next) next.focus();
         }
         updateCheckEnabled();
-      });
+    });
 
       box.addEventListener("keydown", (e) => {
         const key = e.key;
 
-        if (key === "Backspace" && !box.value && idx > 0) {
-          e.preventDefault();
-          boxes[idx - 1].focus();
-          boxes[idx - 1].value = "";
-          updateCheckEnabled();
-          return;
-        }
-
-        if (key === "ArrowLeft" && idx > 0) {
-          e.preventDefault();
-          boxes[idx - 1].focus();
-        }
-
-        if (key === "ArrowRight" && idx < boxes.length - 1) {
-          e.preventDefault();
-          boxes[idx + 1].focus();
+        if (e.key === "Backspace" && !box.value) {
+            e.preventDefault();
+            const prev = getValidBox(idx, -1);
+            if (prev) {
+                prev.focus();
+                prev.value = "";
+            }
+        } else if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            const prev = getValidBox(idx, -1);
+            if (prev) prev.focus();
+        } else if (e.key === "ArrowRight") {
+            e.preventDefault();
+            const next = getValidBox(idx, 1);
+            if (next) next.focus();
         }
 
         updateCheckEnabled();
