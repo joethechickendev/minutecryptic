@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptic</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="chat-container">
+
+        <div class="message-area">
+            <div id="date-0" class="date"></div>
+            <div id="typing-bubble-0" class="message typing-bubble-received hidden">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+
+            <div id="clue-mount-0" class="message received hidden"></div>
+
+            <div id="typing-bubble-1" class="message typing-bubble-sent hidden">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+            
+            <div id="clue-mount-1" class="message sent hidden"></div>
+
+            <div id="date-1" class="date hidden"></div>
+
+            <div id="typing-bubble-2" class="message typing-bubble-sent hidden">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+
+            <div id="clue-mount-2" class="message sent hidden"></div>
+
+            <div id="typing-bubble-3" class="message typing-bubble-received hidden">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+
+            <div id="clue-mount-3" class="message received hidden"></div>
+
+            <div id="date-2" class="date hidden"></div>
+
+            <div id="typing-bubble-4" class="message typing-bubble-sent hidden">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+
+            <div id="clue-mount-4" class="message sent hidden"></div>
+
+            <div id="typing-bubble-5" class="message typing-bubble-received hidden">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+
+            <div id="clue-mount-5" class="message received hidden"></div>
+
+        </div>
+    </div>
+</body>
+
+<script>
+
+  const solved = []; // global to track which clues have been completed
+
+  function createCrypticClue({ answer, clue, i }) {
+    if(solved.length < i - 1){
+        solved.push(false)
+    } else{
+        solved[i] = false;
+    }
+    const root = document.createElement("div");
+    root.className = "cryptic-clue";
+
+    // HTML for a single clue
+    root.innerHTML = `
+        <div class="center">
+    <div class="prompt">
+        ${clue}
+    </div>
+    
+    <div class="answer-row"></div>
+
+    <div class="buttonRow">
+        <div class="mainButtonRow">
+            <button class="hintBtn">
+                Hint
+            </button>
+            
+            <button class="checkBtn">
+                Check
+            </button>
+        </div>
+        <div class="hintButtonRow hidden" style="width: 100%; gap: 10px;">
+            <button class="defBtn">
+                Show Definition
+            </button>
+
+            <button class="fodderBtn">
+                Show Fodder
+            </button>
+            
+            <button class="indBtn">
+                Show Indicators
+            </button>
+        </div>
+    </div>
+
+  </div>
+    `;
+
+    const row = root.querySelector(".answer-row");
+
+    const answerChars = [...answer];
+
+    console.log(answerChars)
+
+    answerChars.forEach((ch, i) => {
+        const input = document.createElement("input"); 
+        input.className = "letter-box";
+        input.maxLength = 1;
+        input.autocomplete = "off";
+        input.spellcheck = false;
+        input.dataset.index = i;
+
+        row.appendChild(input);
+        
+    });
+
+    const boxes = Array.from(root.querySelectorAll(".letter-box"));
+
+    boxes.forEach((box, idx) => {
+      box.addEventListener("input", () => {
+        box.value = box.value.slice(0, 1);
+        if (box.value && idx < boxes.length - 1) {
+          boxes[idx + 1].focus();
+        }
+        updateCheckEnabled();
+      });
+
+      box.addEventListener("keydown", (e) => {
+        const key = e.key;
+
+        if (key === "Backspace" && !box.value && idx > 0) {
+          e.preventDefault();
+          boxes[idx - 1].focus();
+          boxes[idx - 1].value = "";
+          updateCheckEnabled();
+          return;
+        }
+
+        if (key === "ArrowLeft" && idx > 0) {
+          e.preventDefault();
+          boxes[idx - 1].focus();
+        }
+
+        if (key === "ArrowRight" && idx < boxes.length - 1) {
+          e.preventDefault();
+          boxes[idx + 1].focus();
+        }
+
+        updateCheckEnabled();
+      });
+    });
+
+    // Focus first box on load
+    if (boxes[0]) boxes[0].focus();
+
+    const checkBtn = root.querySelector(".checkBtn");
+    const hintBtn = root.querySelector(".hintBtn");
+    const defBtn = root.querySelector(".defBtn");
+    const fodderBtn = root.querySelector(".fodderBtn");
+    const indBtn = root.querySelector(".indBtn");
+    const numberHint = root.querySelector(".numHint");
+    const hintBtnRow = root.querySelector(".hintButtonRow");
+    const mnBtnRow = root.querySelector(".mainButtonRow");
+
+    numberHint.innerText = "(" + answer.length + ")"
+
+    hintBtn.addEventListener("click", () => {
+        if (hintBtnRow.classList.contains("hidden")) {
+            hintBtnRow.classList.remove("hidden");
+        } else {
+            hintBtnRow.classList.add("hidden");
+        }
+    })
+
+    defBtn.addEventListener("click", () => {
+        const defSpans = root.querySelectorAll(".def");
+        defSpans.forEach(defSpan => {
+            defSpan.style.textDecoration = "underline";
+            defSpan.style.textDecorationColor = "#59cafa";
+            defSpan.style.textDecorationThickness = "3px";
+        })
+        defBtn.disabled = true;
+    })
+
+    fodderBtn.addEventListener("click", () => {
+        const fodderSpans = root.querySelectorAll(".fodder");
+        fodderSpans.forEach(fodderSpan => {
+            fodderSpan.style.textDecoration = "underline";
+            fodderSpan.style.textDecorationColor = "#ffd016";
+            fodderSpan.style.textDecorationThickness = "3px";
+        })
+        fodderBtn.disabled = true;
+    })
+
+    indBtn.addEventListener("click", () => {
+        const indSpans = root.querySelectorAll(".ind");
+        indSpans.forEach(indSpan => {
+            indSpan.style.textDecoration = "underline";
+            indSpan.style.textDecorationColor = "#fe6dbd";
+            indSpan.style.textDecorationThickness = "3px";
+        })
+        indBtn.disabled = true;
+    })
+
+    checkBtn.addEventListener("click", () => {
+    const guess = boxes.map(b => b.value).join("");
+    const correct = guess.toLowerCase() === answer.toLowerCase();
+
+    if (!correct) {
+        // shake animation
+        row.classList.remove("shake");
+        void row.offsetWidth;
+        row.classList.add("shake");
+
+        setTimeout(() => {
+        row.classList.remove("shake");
+        }, 250);
+    } else {
+        const buttonRow = root.querySelector(".buttonRow");
+        buttonRow.classList.add("hidden");
+        hintBtnRow.classList.add("hidden");
+        mnBtnRow.classList.add("hidden");
+
+        boxes.forEach(element => {
+            element.style.backgroundColor = "#f9a8d4";
+            element.disabled = true;
+        });
+
+        solved[i] = true;
+    }});
+
+    function updateCheckEnabled() {
+        const allFilled = boxes.every(b => b.value.trim().length === 1);
+        checkBtn.disabled = !allFilled;
+    }
+
+    updateCheckEnabled();
+
+    return root;
+};
+
+function waitForI(i) {
+  return new Promise(resolve => {
+    function checkFlag() {
+      if (solved[i]) {
+        resolve();
+      } else {
+        window.setTimeout(checkFlag, 500); 
+      }
+    }
+    checkFlag();
+  });
+}
+
+const intro = [
+    {
+        date: 0,
+        character: 0,
+        message: "What's up!"
+    },
+    {
+        character: 0,
+        message: `Looks like someone sent you a puzzle...`,
+    }
+];
+
+const outro = {
+    character: 1,
+    message: "light work"
+}
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    // Generate random index from 0 to i
+    const j = Math.floor(Math.random() * (i + 1));
+    // Swap elements [array[i], array[j]]
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+
+console.log(urlParams.get("puzzle").replace(/ /g, '+'));
+
+let clues = [...intro];
+clues.push(
+    JSON.parse(atob(urlParams.get("puzzle").replace(/ /g, '+')))
+);
+clues.push(outro);
+
+function createBubble({ sent }){
+    const root = document.createElement("div");
+    const sentBubbleHTML = `
+    <div class="message typing-bubble-${sent === 0 ? "sent" : "received"}">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
+    `
+    root.innerHTML = sentBubbleHTML;
+    return root;
+}
+
+function createDate( {date_mod} ){
+    const root = document.createElement("div");
+    root.classList.add("date");
+
+    const dateO = new Date();
+    dateO.setDate(dateO.getDate() + date_mod)
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const localeDateString = dateO.toLocaleDateString('en-US', options);
+    root.innerHTML = localeDateString;
+
+    return root;
+}
+
+function createClueMessage({ sent }){
+    const root = document.createElement("div");
+
+    root.classList.add("message");
+    root.classList.add(sent === 0 ? "sent" : "received");
+
+    return root;
+}
+
+function createWordMessage({ sent, message }){
+    const root = document.createElement("div");
+
+    root.classList.add("message");
+    root.classList.add(sent === 0 ? "sent" : "received");
+    root.innerHTML = message;
+
+    return root;
+}
+
+
+const scrollable = document.querySelector(".message-area")
+
+function timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function run(){
+    let z = 0;
+    while(z < clues.length){
+
+        await timeout(clues[z].wait != null ? clues[z].wait : 0)
+
+        if(clues[z].date != null){
+            scrollable.appendChild(createDate({date_mod: clues[z].date}))
+        }
+        scrollable.appendChild(createBubble({sent: clues[z].character}))
+        scrollable.scrollTop = scrollable.scrollHeight;
+        let timeToBubble = clues[z].time != null ? clues[z].time : 2000
+        setTimeout(() => {
+        scrollable.removeChild(scrollable.lastElementChild)
+        if(clues[z].message != null){
+            scrollable.appendChild(createWordMessage({sent: clues[z].character, message: clues[z].message}))
+            solved.push(true);
+        } else{
+            scrollable.appendChild(createClueMessage({sent: clues[z].character}))
+            scrollable.lastElementChild.appendChild(createCrypticClue({
+                answer: clues[z].answer,
+                clue: clues[z].clue,
+                i: z
+            }));
+        }
+        scrollable.scrollTop = scrollable.scrollHeight;
+        }, timeToBubble);
+
+        await waitForI(z);
+        z++;
+    }
+}
+
+run();
+
+</script>
+
+</html>

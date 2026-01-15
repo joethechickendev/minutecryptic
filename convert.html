@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzle Share Generator</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
+        textarea { width: 100%; height: 300px; font-family: monospace; margin-bottom: 10px; }
+        button { padding: 10px 20px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+
+    <h2>Cryptic Maker</h2>
+    <p>Edit the JSON with your cryptic puzzle. I would make it separately and then format it here.</p>
+
+    <textarea id="jsonInput"></textarea>
+    <br>
+    <button onclick="generateRedirect()">Generate Link</button>
+
+    <script>
+        const defaultValue = {
+            character: 0,
+            answer: "Answer string here",
+            clue: [
+                { string: "Example fodder string (words to be messed with)", type: "fodder" },
+                { string: "Example identifier string (how you manipulate the fodder to get to your answer)", type: "ind" },
+                { string: "Example definition string (the meaning of the answer)", type: "def" },
+                { string: "Example useless string (makes the sentence gramatical)", type: "none" }
+            ]
+        };
+
+        // Initialize textarea with default value
+        document.getElementById('jsonInput').value = JSON.stringify(defaultValue, null, 4);
+
+        function getShare(a) {
+            let b = {...a};
+            b.clue = "";
+
+            for(const word of a.clue) {
+                if(word.type == "none") {
+                    b.clue += `${word.string}\n`;
+                } else {
+                    b.clue += `<span class="${word.type}">${word.string}</span>\n`;
+                }
+            }
+
+            b.clue += `<span class="numHint" style="font-style: normal;"></span>`;
+
+            // Using btoa(unescape(encodeURIComponent())) to handle potential Unicode characters
+            return btoa(unescape(encodeURIComponent(JSON.stringify(b))));
+        }
+
+        function generateRedirect() {
+            try {
+                const inputData = JSON.parse(document.getElementById('jsonInput').value);
+                const encodedPuzzle = getShare(inputData);
+                window.location.href = `custom.html?puzzle=${encodedPuzzle}`;
+            } catch (e) {
+                alert("Invalid JSON format. Please check your input.");
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+</html>
