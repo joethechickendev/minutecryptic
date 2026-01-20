@@ -404,7 +404,7 @@ async function run(){
         scrollable.removeChild(scrollable.lastElementChild)
         if(clues[z].message != null){
             scrollable.appendChild(createWordMessage({sent: clues[z].character, message: clues[z].message}))
-            solved.push(true);
+            solved[z] = true;
         } else{
             scrollable.appendChild(createClueMessage({sent: clues[z].character}))
             scrollable.lastElementChild.appendChild(createCrypticClue({
