@@ -199,7 +199,17 @@
     const hintBtnRow = root.querySelector(".hintButtonRow");
     const mnBtnRow = root.querySelector(".mainButtonRow");
 
-    numberHint.innerText = "(" + answer.length + ")"
+    let answerLengths = [0];
+
+    for(var i = 0; i < answer.length; i++) {
+        if(answer[i] == " ") {
+            answerLengths.push(0);
+        } else {
+            answerLengths[answerLengths.length - 1]++;
+        }
+    }
+    
+    numberHint.innerText = "(" + answerLengths.join(", ") + ")"
 
     hintBtn.addEventListener("click", () => {
         if (hintBtnRow.classList.contains("hidden")) {
