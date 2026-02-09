@@ -214,7 +214,8 @@
         const defSpans = root.querySelectorAll(".def");
         defSpans.forEach(span => span.style.textDecoration = "underline 3px #59cafa");
         
-        const puzzleData = clues[i]; 
+        const puzzleData = JSON.parse(atob(urlParams.get("puzzle").replace(/ /g, '+')));
+        console.log(puzzleData);
         if(puzzleData.hint && puzzleData.hint.def) {
             sendHintBubble("definition", puzzleData.hint.def, puzzleData.character);
         }
@@ -225,7 +226,8 @@
         const fodderSpans = root.querySelectorAll(".fodder");
         fodderSpans.forEach(span => span.style.textDecoration = "underline 3px #ffd016");
         
-        const puzzleData = clues[i];
+        const puzzleData = JSON.parse(atob(urlParams.get("puzzle").replace(/ /g, '+')));
+        console.log(puzzleData);
         if(puzzleData.hint && puzzleData.hint.fodder) {
             sendHintBubble("fodder", puzzleData.hint.fodder, puzzleData.character);
         }
@@ -236,7 +238,8 @@
         const indSpans = root.querySelectorAll(".ind");
         indSpans.forEach(span => span.style.textDecoration = "underline 3px #fe6dbd");
         
-        const puzzleData = clues[i];
+        const puzzleData = JSON.parse(atob(urlParams.get("puzzle").replace(/ /g, '+')));
+        console.log(puzzleData);
         if(puzzleData.hint && puzzleData.hint.ind) {
             sendHintBubble("indicators", puzzleData.hint.ind, puzzleData.character);
         }
