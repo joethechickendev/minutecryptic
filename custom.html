@@ -80,9 +80,14 @@
     const root = document.createElement("div");
     root.className = "cryptic-clue";
 
-    const clueHTML = clue.map(part => 
-        `<span class="${part.type}">${part.string}</span>`
-    ).join(" ");
+    let clueHTML = "";
+    if (Array.isArray(clue)) {
+        clueHTML = clue.map(part => 
+            `<span class="${part.type}">${part.string}</span>`
+        ).join(" ");
+    } else {
+        clueHTML = clue; // Fallback for simple strings
+    }
 
     root.innerHTML = `
         <div class="center">
