@@ -80,41 +80,27 @@
     const root = document.createElement("div");
     root.className = "cryptic-clue";
 
-    // HTML for a single clue
+    const clueHTML = clue.map(part => 
+        `<span class="${part.type}">${part.string}</span>`
+    ).join(" ");
+
     root.innerHTML = `
         <div class="center">
-    <div class="prompt">
-        ${clue}
-    </div>
-    
-    <div class="answer-row"></div>
-
-    <div class="buttonRow">
-        <div class="mainButtonRow">
-            <button class="hintBtn">
-                Hint
-            </button>
-            
-            <button class="checkBtn">
-                Check
-            </button>
+            <div class="prompt">${clueHTML}</div>
+            <div class="answer-row"></div>
+            <div class="numHint" style="text-align:center; font-size: 0.8em; margin-top:5px;"></div>
+            <div class="buttonRow">
+                <div class="mainButtonRow">
+                    <button class="hintBtn">Hint</button>
+                    <button class="checkBtn">Check</button>
+                </div>
+                <div class="hintButtonRow hidden" style="width: 100%; gap: 10px;">
+                    <button class="defBtn">Show Definition</button>
+                    <button class="fodderBtn">Show Fodder</button>
+                    <button class="indBtn">Show Indicators</button>
+                </div>
+            </div>
         </div>
-        <div class="hintButtonRow hidden" style="width: 100%; gap: 10px;">
-            <button class="defBtn">
-                Show Definition
-            </button>
-
-            <button class="fodderBtn">
-                Show Fodder
-            </button>
-            
-            <button class="indBtn">
-                Show Indicators
-            </button>
-        </div>
-    </div>
-
-  </div>
     `;
 
     const row = root.querySelector(".answer-row");
@@ -221,33 +207,38 @@
 
     defBtn.addEventListener("click", () => {
         const defSpans = root.querySelectorAll(".def");
-        defSpans.forEach(defSpan => {
-            defSpan.style.textDecoration = "underline";
-            defSpan.style.textDecorationColor = "#59cafa";
-            defSpan.style.textDecorationThickness = "3px";
-        })
+        defSpans.forEach(span => span.style.textDecoration = "underline 3px #59cafa");
+        
+        // Trigger the hint bubble (clues[z].hint.def)
+        // Note: 'clues[z]' refers to the current puzzle data in your run() loop
+        const puzzleData = clues[z]; 
+        if(puzzleData.hint && puzzleData.hint.def) {
+            sendHintBubble("definition", puzzleData.hint.def, puzzleData.character);
+        }
         defBtn.disabled = true;
-    })
+    });
 
     fodderBtn.addEventListener("click", () => {
         const fodderSpans = root.querySelectorAll(".fodder");
-        fodderSpans.forEach(fodderSpan => {
-            fodderSpan.style.textDecoration = "underline";
-            fodderSpan.style.textDecorationColor = "#ffd016";
-            fodderSpan.style.textDecorationThickness = "3px";
-        })
+        fodderSpans.forEach(span => span.style.textDecoration = "underline 3px #ffd016");
+        
+        const puzzleData = clues[z];
+        if(puzzleData.hint && puzzleData.hint.fodder) {
+            sendHintBubble("fodder", puzzleData.hint.fodder, puzzleData.character);
+        }
         fodderBtn.disabled = true;
-    })
+    });
 
     indBtn.addEventListener("click", () => {
         const indSpans = root.querySelectorAll(".ind");
-        indSpans.forEach(indSpan => {
-            indSpan.style.textDecoration = "underline";
-            indSpan.style.textDecorationColor = "#fe6dbd";
-            indSpan.style.textDecorationThickness = "3px";
-        })
+        indSpans.forEach(span => span.style.textDecoration = "underline 3px #fe6dbd");
+        
+        const puzzleData = clues[z];
+        if(puzzleData.hint && puzzleData.hint.ind) {
+            sendHintBubble("indicators", puzzleData.hint.ind, puzzleData.character);
+        }
         indBtn.disabled = true;
-    })
+    });
 
     checkBtn.addEventListener("click", () => {
     const guess = boxes.map(b => b.value === "-" ? " " : b.value).join("");
@@ -379,6 +370,21 @@ function createWordMessage({ sent, message }){
     root.innerHTML = message;
 
     return root;
+}
+
+// Function to add a new message bubble to the chat area
+function sendHintBubble(type, hintList, character) {
+    if (!hintList || hintList.length === 0) return;
+
+    const listItems = hintList.map(h => `<li>${h}</li>`).join("");
+    const message = `
+        Here are the hints for ${type}:
+        <ul style="margin: 5px 0; padding-left: 20px;">${listItems}</ul>
+    `;
+    
+    const bubble = createWordMessage({ sent: character, message: message });
+    scrollable.appendChild(bubble);
+    scrollable.scrollTop = scrollable.scrollHeight;
 }
 
 
