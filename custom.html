@@ -217,7 +217,7 @@
         const puzzleData = JSON.parse(atob(urlParams.get("puzzle").replace(/ /g, '+')));
         console.log(puzzleData);
         if(puzzleData.hint && puzzleData.hint.def) {
-            sendHintBubble("definition", puzzleData.hint.def, puzzleData.character);
+            sendHintBubble("the definition", puzzleData.hint.def, puzzleData.character);
         }
         defBtn.disabled = true;
     });
@@ -229,7 +229,7 @@
         const puzzleData = JSON.parse(atob(urlParams.get("puzzle").replace(/ /g, '+')));
         console.log(puzzleData);
         if(puzzleData.hint && puzzleData.hint.fodder) {
-            sendHintBubble("fodder", puzzleData.hint.fodder, puzzleData.character);
+            sendHintBubble("the fodder", puzzleData.hint.fodder, puzzleData.character);
         }
         fodderBtn.disabled = true;
     });
@@ -241,7 +241,7 @@
         const puzzleData = JSON.parse(atob(urlParams.get("puzzle").replace(/ /g, '+')));
         console.log(puzzleData);
         if(puzzleData.hint && puzzleData.hint.ind) {
-            sendHintBubble("indicators", puzzleData.hint.ind, puzzleData.character);
+            sendHintBubble("the indicators", puzzleData.hint.ind, puzzleData.character);
         }
         indBtn.disabled = true;
     });
