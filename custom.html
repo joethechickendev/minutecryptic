@@ -70,11 +70,11 @@
 <script>
 const solved = []; // global to track which clues have been completed
 
-function createCrypticClue({ answer, clue, i }) {
-    if(solved.length < i - 1){
+function createCrypticClue({ answer, clue, index }) {
+    if(solved.length < index - 1){
         solved.push(false)
     } else{
-        solved[i] = false;
+        solved[index] = false;
     }
     const root = document.createElement("div");
     root.className = "cryptic-clue";
@@ -263,7 +263,6 @@ function createCrypticClue({ answer, clue, i }) {
         defSpans.forEach(span => span.style.textDecoration = "underline 3px #59cafa");
         
         const puzzleData = JSON.parse(atob(urlParams.get("puzzle").replace(/ /g, '+')));
-        console.log(puzzleData);
         if(puzzleData.hint && puzzleData.hint.def) {
             sendHintBubble("the definition", puzzleData.hint.def, puzzleData.character);
             hints.def = true;
@@ -278,7 +277,6 @@ function createCrypticClue({ answer, clue, i }) {
         fodderSpans.forEach(span => span.style.textDecoration = "underline 3px #ffd016");
         
         const puzzleData = JSON.parse(atob(urlParams.get("puzzle").replace(/ /g, '+')));
-        console.log(puzzleData);
         if(puzzleData.hint && puzzleData.hint.fodder) {
             sendHintBubble("the fodder", puzzleData.hint.fodder, puzzleData.character);
             hints.fodder = true;
@@ -293,7 +291,6 @@ function createCrypticClue({ answer, clue, i }) {
         indSpans.forEach(span => span.style.textDecoration = "underline 3px #fe6dbd");
         
         const puzzleData = JSON.parse(atob(urlParams.get("puzzle").replace(/ /g, '+')));
-        console.log(puzzleData);
         if(puzzleData.hint && puzzleData.hint.ind) {
             sendHintBubble("the indicators", puzzleData.hint.ind, puzzleData.character);
             hints.ind = true;
@@ -314,7 +311,6 @@ function createCrypticClue({ answer, clue, i }) {
         box.disabled = true;
 
         hints.letters.splice(random, 1);
-        console.log(hints.letters);
         updateCheckEnabled();
         updateHints();
 
@@ -347,7 +343,7 @@ function createCrypticClue({ answer, clue, i }) {
             element.disabled = true;
         });
 
-        solved[i] = true;
+        solved[index] = true;
     }});
 
     function updateCheckEnabled() {
@@ -407,7 +403,7 @@ console.log(urlParams.get("puzzle").replace(/ /g, '+'));
 let clues = [...intro];
 let clue = JSON.parse(atob(urlParams.get("puzzle").replace(/ /g, '+')));
 
-if(clue.par) {clues.push({par: clue.par, character: 0}); clue.time = 0;}
+if(clue.par) {clues.push({parThis: clue.par, character: 0}); clue.time = 0;}
 clues.push(clue);
 clues.push(outro);
 
@@ -520,15 +516,15 @@ async function run(){
             scrollable.appendChild(createWordMessage({sent: clues[z].character, message: clues[z].message}))
             solved[z] = true;
         } else{
-            if(clues[z].par != null){
-                scrollable.appendChild(createParMessage({sent: clues[z].character, par: clues[z].par, length: clue.answer.length + 3}));
+            if(clues[z].parThis){
+                scrollable.appendChild(createParMessage({sent: clues[z].character, par: clues[z].parThis, length: clue.answer.length + 3}));
                 solved[z] = true;
             } else{
                 scrollable.appendChild(createClueMessage({sent: clues[z].character}))
                 scrollable.lastElementChild.appendChild(createCrypticClue({
                     answer: clues[z].answer,
                     clue: clues[z].clue,
-                    i: z
+                    index: z
                 }));
             }
         }
