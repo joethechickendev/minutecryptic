@@ -521,7 +521,7 @@ async function run(){
             solved[z] = true;
         } else{
             if(clues[z].par != null){
-                scrollable.appendChild(createParMessage({sent: clues[z].character, par: clues[z].par, length: clues[z + 1].answer.length + 3}));
+                scrollable.appendChild(createParMessage({sent: clues[z].character, par: clues[z].par, length: clue.answer.length + 3}));
                 solved[z] = true;
             } else{
                 scrollable.appendChild(createClueMessage({sent: clues[z].character}))
