@@ -241,10 +241,21 @@ function createCrypticClue({ answer, clue, index }) {
             return;
         }
 
+        const parLabel = message.children[0];
+        let a = parLabel.innerHTML.split(" (");
+        let score = getHints() - parseInt(a[1].split(" ")[1]);
+
+        if(score > 0) {
+            a[0] = `Score: +${score}`
+        } else {
+            a[0] = `Score: ${score}`
+        }
+
+        parLabel.innerHTML = a.join(" (");
+
         const par = message.children[1];
 
         console.log(`Updating ${par.children.length} for hints = ${getHints()}`);
-
         for(let i = 0; i < par.children.length; i++) {
             if(i < getHints()) {
                 par.children[i].classList.add("used");
@@ -346,7 +357,7 @@ function createCrypticClue({ answer, clue, index }) {
                 break;
             default:
                 if(diff > 0) {
-                    message.message = "yeah light work"
+                    message.message = "yeah uhh light work"
                 } else {
                     message.message = "can I get a gold star?"
                 }
@@ -491,7 +502,7 @@ function createParMessage({ sent, par, length }){
 
     const parLabel = document.createElement("div");
     parLabel.classList.add("par-number");
-    parLabel.innerHTML = (`Par: ${par}`);
+    parLabel.innerHTML = (`Score: -${par} (Par ${par})`);
 
     root.appendChild(parLabel);
     root.appendChild(parMessage);
