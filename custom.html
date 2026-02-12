@@ -216,8 +216,7 @@ function createCrypticClue({ answer, clue, index }) {
 
     let lettersStartingLength = hints.letters.length;
 
-    function updateHints() {
-        function getHints() {
+    function getHints() {
             let a = 0;
             a += hints.def ? 1 : 0;
             a += hints.fodder ? 1 : 0;
@@ -227,6 +226,7 @@ function createCrypticClue({ answer, clue, index }) {
             return a;
         }
 
+    function updateHints() {
         let area = document.querySelector(".message-area");
         let message;
 
@@ -319,6 +319,43 @@ function createCrypticClue({ answer, clue, index }) {
         } 
     });
 
+    function updateMessages({ par, hintsUsed }) {
+        let diff = par - hintsUsed;
+        let message = {
+            character: 1,
+            message: "light work"
+        };
+
+        switch (diff) {
+            case(-3):
+                message.message = "im a eagle"
+                break;
+            case(-2):
+                message.message = "bravo"
+                break;
+            case(-1):
+                message.message = "easy"
+                break;
+            case(0):
+                message.message = "thanks twin"
+                break;
+            case(1):
+                message.message = "twin you set the par too high"
+                break;
+            default:
+                if(diff > 0) {
+                    message.message = "yeah light work"
+                } else {
+                    message.message = "can I get a gold star?"
+                }
+                break;
+        }
+
+        if(hintsUsed == 0) {
+            message.message = "light work"
+        }
+    }
+
     checkBtn.addEventListener("click", () => {
     const guess = boxes.map(b => b.value === "-" ? " " : b.value).join("");
     const correct = guess.toLowerCase() === answer.toLowerCase();
@@ -344,6 +381,9 @@ function createCrypticClue({ answer, clue, index }) {
         });
 
         solved[index] = true;
+
+        const puzzleData = JSON.parse(atob(urlParams.get("puzzle").replace(/ /g, '+')));
+        updateMessages({ par: puzzleData.par || NaN, hintsUsed: getHints() });
     }});
 
     function updateCheckEnabled() {
@@ -381,11 +421,6 @@ const intro = [
     }
 ];
 
-const outro = {
-    character: 1,
-    message: "light work"
-}
-
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
     // Generate random index from 0 to i
@@ -405,7 +440,6 @@ let clue = JSON.parse(atob(urlParams.get("puzzle").replace(/ /g, '+')));
 
 if(clue.par) {clues.push({parThis: clue.par, character: 0}); clue.time = 0;}
 clues.push(clue);
-clues.push(outro);
 
 function createBubble({ sent }){
     const root = document.createElement("div");
