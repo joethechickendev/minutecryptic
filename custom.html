@@ -69,6 +69,7 @@
 
 <script>
 const solved = []; // global to track which clues have been completed
+let clues;
 
 function createCrypticClue({ answer, clue, index }) {
     if(solved.length < index - 1){
@@ -354,6 +355,8 @@ function createCrypticClue({ answer, clue, index }) {
         if(hintsUsed == 0) {
             message.message = "light work"
         }
+
+        clues.push(message);
     }
 
     checkBtn.addEventListener("click", () => {
@@ -435,7 +438,7 @@ const urlParams = new URLSearchParams(window.location.search);
 
 console.log(urlParams.get("puzzle").replace(/ /g, '+'));
 
-let clues = [...intro];
+clues = [...intro];
 let clue = JSON.parse(atob(urlParams.get("puzzle").replace(/ /g, '+')));
 
 if(clue.par) {clues.push({parThis: clue.par, character: 0}); clue.time = 0;}
