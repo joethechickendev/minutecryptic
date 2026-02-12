@@ -322,7 +322,7 @@ function createCrypticClue({ answer, clue, index }) {
     });
 
     function updateMessages({ par, hintsUsed }) {
-        let diff = par - hintsUsed;
+        let diff = hintsUsed - par;
         let message = {
             character: 1,
             message: "light work"
