@@ -84,7 +84,12 @@ body {
   height: 5vh;
   width: fit-content;
   align-self: flex-end;
-  margin-left: 91%;
+}
+
+.bubbleSentDiv {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
 }
 
 .dot {
@@ -155,7 +160,7 @@ body {
   background: #fff;
 }
 
-.defBtn, .fodderBtn, .indBtn {
+.defBtn, .fodderBtn, .indBtn, .letBtn {
   font: italic 800 10px/1 "Georgia", "Times New Roman", serif;
   padding: 4px 10px;
   border-radius: 16px;
@@ -186,24 +191,13 @@ body {
   background: #f9a8d4;
 }
 
+.letBtn {
+  background: #66eda1;
+}
+
 /* Disabled state for Check */
-.checkBtn:disabled {
+.checkBtn:disabled, .letBtn:disabled, .defBtn:disabled, .fodderBtn:disabled, .indBtn:disabled {
   opacity: 0.5;
-  cursor: default;
-}
-
-.defBtn:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.fodderBtn:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.indBtn:disabled {
- opacity: 0.5;
   cursor: default;
 }
 
@@ -229,8 +223,24 @@ body {
   margin-top: 10px; 
   display: flex; 
   flex-direction: column; 
-  justify-content: center; 
+  justify-content: space-between; 
   gap: 10px;
+}
+
+.circle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #80878d;
+}
+
+.unused {
+  background-color: #bfc6cc;
+}
+
+.par {
+  margin-bottom: 10px;
+  flex-direction: row;
 }
 
 @keyframes shake {

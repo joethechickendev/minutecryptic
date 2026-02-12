@@ -68,10 +68,9 @@
 </body>
 
 <script>
+const solved = []; // global to track which clues have been completed
 
-  const solved = []; // global to track which clues have been completed
-
-  function createCrypticClue({ answer, clue, i }) {
+function createCrypticClue({ answer, clue, i }) {
     if(solved.length < i - 1){
         solved.push(false)
     } else{
@@ -100,9 +99,10 @@
                     <button class="checkBtn">Check</button>
                 </div>
                 <div class="hintButtonRow hidden" style="width: 100%; gap: 10px;">
-                    <button class="defBtn">Show Definition</button>
-                    <button class="fodderBtn">Show Fodder</button>
-                    <button class="indBtn">Show Indicators</button>
+                    <button class="defBtn">Definition</button>
+                    <button class="fodderBtn">Fodder</button>
+                    <button class="indBtn">Indicators</button>
+                    <button class="letBtn">Letter</button>
                 </div>
             </div>
         </div>
@@ -186,6 +186,7 @@
     const defBtn = root.querySelector(".defBtn");
     const fodderBtn = root.querySelector(".fodderBtn");
     const indBtn = root.querySelector(".indBtn");
+    const letBtn = root.querySelector(".letBtn");
     const numberHint = root.querySelector(".numHint");
     const hintBtnRow = root.querySelector(".hintButtonRow");
     const mnBtnRow = root.querySelector(".mainButtonRow");
@@ -201,6 +202,53 @@
     }
     
     numberHint.innerText = "(" + answerLengths.join(", ") + ")"
+
+    let hints = {
+        def: false,
+        fodder: false,
+        ind: false,
+        letters: []
+    };
+
+    for(let i = 0; i < answer.length; i++) {
+        answer[i] !== " " && hints.letters.push(i);
+    }
+
+    let lettersStartingLength = hints.letters.length;
+
+    function updateHints() {
+        function getHints() {
+            let a = 0;
+            a += hints.def ? 1 : 0;
+            a += hints.fodder ? 1 : 0;
+            a += hints.ind ? 1 : 0;
+            a += lettersStartingLength - hints.letters.length;
+
+            return a;
+        }
+
+        let area = document.querySelector(".message-area");
+        let message;
+
+        for(let i = 0; i < area.children.length; i++) {
+            if(area.children[i].querySelector(".par")) {
+                message = area.children[i];
+            }
+        }
+
+        if(!message) {
+            return;
+        }
+
+        const par = message.children[0];
+        console.log(par);
+
+        for(let i = 0; i < par.children.length; i++) {
+            if(i < getHints()) {
+                par.children[i].classList.remove("unused");
+            }
+        }
+    }
 
     hintBtn.addEventListener("click", () => {
         if (hintBtnRow.classList.contains("hidden")) {
@@ -218,8 +266,11 @@
         console.log(puzzleData);
         if(puzzleData.hint && puzzleData.hint.def) {
             sendHintBubble("the definition", puzzleData.hint.def, puzzleData.character);
+            hints.def = true;
         }
         defBtn.disabled = true;
+
+        updateHints();
     });
 
     fodderBtn.addEventListener("click", () => {
@@ -230,8 +281,11 @@
         console.log(puzzleData);
         if(puzzleData.hint && puzzleData.hint.fodder) {
             sendHintBubble("the fodder", puzzleData.hint.fodder, puzzleData.character);
+            hints.fodder = true;
         }
         fodderBtn.disabled = true;
+
+        updateHints();
     });
 
     indBtn.addEventListener("click", () => {
@@ -242,8 +296,31 @@
         console.log(puzzleData);
         if(puzzleData.hint && puzzleData.hint.ind) {
             sendHintBubble("the indicators", puzzleData.hint.ind, puzzleData.character);
+            hints.ind = true;
         }
         indBtn.disabled = true;
+
+        updateHints();
+    });
+
+    letBtn.addEventListener("click", () => {
+        let random = Math.floor(Math.random() * hints.letters.length);
+        let letter = hints.letters[random];
+
+        const box = root.querySelectorAll(".letter-box")[letter];
+        box.style.backgroundColor = "#66eda1";
+        box.value = answer[box.dataset.index];
+        box.readOnly = true;
+        box.disabled = true;
+
+        hints.letters.splice(random, 1);
+        console.log(hints.letters);
+        updateCheckEnabled();
+        updateHints();
+
+        if(hints.letters.length == 0) {
+            letBtn.disabled = true;
+        } 
     });
 
     checkBtn.addEventListener("click", () => {
@@ -328,13 +405,15 @@ const urlParams = new URLSearchParams(window.location.search);
 console.log(urlParams.get("puzzle").replace(/ /g, '+'));
 
 let clues = [...intro];
-clues.push(
-    JSON.parse(atob(urlParams.get("puzzle").replace(/ /g, '+')))
-);
+let clue = JSON.parse(atob(urlParams.get("puzzle").replace(/ /g, '+')));
+
+if(clue.par) {clues.push({par: clue.par, character: 0}); clue.time = 0;}
+clues.push(clue);
 clues.push(outro);
 
 function createBubble({ sent }){
     const root = document.createElement("div");
+    root.classList.add(sent === 0 ? "bubbleSentDiv" : "bubbleReceivedDiv");
     const sentBubbleHTML = `
     <div class="message typing-bubble-${sent === 0 ? "sent" : "received"}">
         <div class="dot"></div>
@@ -355,6 +434,29 @@ function createDate( {date_mod} ){
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const localeDateString = dateO.toLocaleDateString('en-US', options);
     root.innerHTML = localeDateString;
+
+    return root;
+}
+
+function createParMessage({ sent, par, length }){
+    const root = document.createElement("div");
+
+    root.classList.add("message");
+    root.classList.add(sent === 0 ? "sent" : "received");
+
+    const parMessage = document.createElement("div");
+    parMessage.classList.add("par");
+    parMessage.classList.add("buttonRow");
+
+    for(let i = 0; i < length; i++) {
+        const circle = document.createElement("div");
+        circle.classList.add("circle");
+        circle.classList.add("unused");
+        parMessage.appendChild(circle);
+    }
+
+    root.innerHTML = (`Par: ${par}`);
+    root.appendChild(parMessage);
 
     return root;
 }
@@ -394,7 +496,7 @@ function sendHintBubble(type, hintList, character) {
 }
 
 
-const scrollable = document.querySelector(".message-area")
+const scrollable = document.querySelector(".message-area");
 
 function timeout(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -418,12 +520,17 @@ async function run(){
             scrollable.appendChild(createWordMessage({sent: clues[z].character, message: clues[z].message}))
             solved[z] = true;
         } else{
-            scrollable.appendChild(createClueMessage({sent: clues[z].character}))
-            scrollable.lastElementChild.appendChild(createCrypticClue({
-                answer: clues[z].answer,
-                clue: clues[z].clue,
-                i: z
-            }));
+            if(clues[z].par != null){
+                scrollable.appendChild(createParMessage({sent: clues[z].character, par: clues[z].par, length: clues[z + 1].answer.length + 3}));
+                solved[z] = true;
+            } else{
+                scrollable.appendChild(createClueMessage({sent: clues[z].character}))
+                scrollable.lastElementChild.appendChild(createCrypticClue({
+                    answer: clues[z].answer,
+                    clue: clues[z].clue,
+                    i: z
+                }));
+            }
         }
         scrollable.scrollTop = scrollable.scrollHeight;
         }, timeToBubble);

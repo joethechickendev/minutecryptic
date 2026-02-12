@@ -11,34 +11,90 @@
         button:hover { background: #0056b3; }
     </style>
 </head>
-<body>
+<body onload="reset()">
 
     <h2>Cryptic Maker</h2>
     <p>Edit the JSON with your cryptic puzzle. I would make it separately and then format it here.</p>
-
     <textarea id="jsonInput"></textarea>
     <br>
-    <button onclick="generateRedirect()">Generate Link</button>
+    <div class="controls">
+        <button class="secondary" onclick="reset()">Load from URL</button>
+        <button onclick="generateRedirect()">Generate Share Link</button>
+    </div>
 
     <script>
-        const defaultValue = {
-            character: 0,
-            answer: "Answer string here",
-            clue: [
-                { string: "Example fodder string (words to be messed with)", type: "fodder" },
-                { string: "Example identifier string (how you manipulate the fodder to get to your answer)", type: "ind" },
-                { string: "Example definition string (the meaning of the answer)", type: "def" },
-                { string: "Example useless string (makes the sentence grammatical)", type: "none" }
-            ],
-            hint: {
-                "ind": [],
-                "fodder": [],
-                "def": []
-            }
-        };
+        function reset() {
+            let defaultValue = {
+                character: 0,
+                answer: "Answer string here",
+                clue: [
+                    { string: "Example fodder string (words to be messed with)", type: "fodder" },
+                    { string: "Example identifier string (how you manipulate the fodder to get to your answer)", type: "ind" },
+                    { string: "Example definition string (the meaning of the answer)", type: "def" },
+                    { string: "Example useless string (makes the sentence grammatical)", type: "none" }
+                ],
+                hint: {
+                    "ind": [],
+                    "fodder": [],
+                    "def": []
+                },
+                par: "Enter a number here to show how many hints should be used on average"
+            };
 
-        // Initialize textarea with default value
-        document.getElementById('jsonInput').value = JSON.stringify(defaultValue, null, 4);
+            const urlParams = new URLSearchParams(window.location.search);
+            const puzzleParam = urlParams.get('puzzle');
+
+            if (puzzleParam) {
+                try {
+                    const rawData = puzzleParam.replace(/ /g, '+');
+                    const decoded = decodeURIComponent(escape(atob(rawData)));
+
+                    json = JSON.parse(decoded);
+
+                    json.clue = json.clue.split("\n");
+                    let a = [];
+
+                    for(const c of json.clue) {
+                        if(c.startsWith("<span")) {
+                            const type = c.includes('class="ind"') ? "ind" : c.includes('class="fodder"') ? "fodder" : c.includes('class="def"') ? "def" : "none";
+                            const string = c.replace(/<[^>]+>/g, '').trim();
+                            a.push({ string, type });
+                        } else {
+                            a.push({ string: c.trim(), type: "none" });
+                        }
+                    }
+
+                    if (a[a.length - 1].string == "") {
+                        a.pop();
+                    }
+
+                    json.clue = a;
+                    console.log(json);
+
+                    defaultValue = {
+                        character: 0,
+                        answer: json.answer ? json.answer : "Answer string here",
+                        clue: json.clue ? json.clue : [
+                            { string: "Example fodder string (words to be messed with)", type: "fodder" },
+                            { string: "Example identifier string (how you manipulate the fodder to get to your answer)", type: "ind" },
+                            { string: "Example definition string (the meaning of the answer)", type: "def" },
+                            { string: "Example useless string (makes the sentence grammatical)", type: "none" }
+                        ],
+                        hint: {
+                            "ind": json.hint ? json.hint.ind : [],
+                            "fodder": json.hint ? json.hint.fodder : [],
+                            "def": json.hint ? json.hint.def : []
+                        },
+                        par: json.par ? json.par : "Enter a number here to show how many hints should be used on average"
+                    };
+                } catch (e) {
+                    console.error("Failed to decode puzzle from URL:", e);
+                }
+            }
+
+            // Initialize textarea with default value
+            document.getElementById('jsonInput').value = JSON.stringify(defaultValue, null, 4);
+        }
 
         function getShare(a) {
             let b = {...a};
@@ -54,7 +110,6 @@
 
             b.clue += `<span class="numHint" style="font-style: normal;"></span>`;
 
-            // Using btoa(unescape(encodeURIComponent())) to handle potential Unicode characters
             return btoa(unescape(encodeURIComponent(JSON.stringify(b))));
         }
 
