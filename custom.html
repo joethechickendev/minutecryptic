@@ -245,7 +245,7 @@ function createCrypticClue({ answer, clue, index }) {
 
         for(let i = 0; i < par.children.length; i++) {
             if(i < getHints()) {
-                par.children[i].classList.remove("unused");
+                par.children[i].classList.add("used");
             }
         }
     }
@@ -447,11 +447,15 @@ function createParMessage({ sent, par, length }){
     for(let i = 0; i < length; i++) {
         const circle = document.createElement("div");
         circle.classList.add("circle");
-        circle.classList.add("unused");
+        if(i < par) circle.classList.add("on-par");
         parMessage.appendChild(circle);
     }
 
-    root.innerHTML = (`Par: ${par}`);
+    const parLabel = document.createElement("div");
+    parLabel.classList.add("par-number");
+    parLabel.innerHTML = (`Par: ${par}`);
+
+    root.appendChild(parLabel);
     root.appendChild(parMessage);
 
     return root;

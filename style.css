@@ -47,6 +47,7 @@ body {
     border-radius: 20px;
     max-width: 80%;
     word-wrap: break-word;
+    box-shadow: 0 0px 5px rgba(0, 0, 0, 0.08);
 }
 
 .sent {
@@ -231,16 +232,28 @@ body {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background-color: #80878d;
+  border-width: 3px;
+  border-style: solid;
+  border-color: #e2e6ea;
+  background-color: #bfc6cc;
 }
 
-.unused {
-  background-color: #bfc6cc;
+.on-par {
+  border-color: #d7dce0;
+}
+
+.used {
+  background-color: #80878d;
 }
 
 .par {
   margin-bottom: 10px;
   flex-direction: row;
+}
+
+.par-number {
+  font: italic 800 16px/1 "Georgia", "Times New Roman", serif;
+  text-align: right;
 }
 
 @keyframes shake {
