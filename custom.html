@@ -218,14 +218,14 @@ function createCrypticClue({ answer, clue, index }) {
     let lettersStartingLength = hints.letters.length;
 
     function getHints() {
-            let a = 0;
-            a += hints.def ? 1 : 0;
-            a += hints.fodder ? 1 : 0;
-            a += hints.ind ? 1 : 0;
-            a += lettersStartingLength - hints.letters.length;
+        let a = 0;
+        a += hints.def ? 1 : 0;
+        a += hints.fodder ? 1 : 0;
+        a += hints.ind ? 1 : 0;
+        a += lettersStartingLength - hints.letters.length;
 
-            return a;
-        }
+        return a;
+    }
 
     function updateHints() {
         let area = document.querySelector(".message-area");
@@ -241,8 +241,9 @@ function createCrypticClue({ answer, clue, index }) {
             return;
         }
 
-        const par = message.children[0];
-        console.log(par);
+        const par = message.children[1];
+
+        console.log(`Updating ${par.children.length} for hints = ${getHints()}`);
 
         for(let i = 0; i < par.children.length; i++) {
             if(i < getHints()) {
