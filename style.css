@@ -239,7 +239,6 @@ body {
 }
 
 .on-par {
-  border-color: #80878d;
   width: 12px;
   height: 12px;
 }
@@ -247,10 +246,6 @@ body {
 .used {
   background-color: #80878d;
   border-color: #80878d;
-}
-
-.on-par.used {
-  border-color: #3d444a;
 }
 
 .par {
