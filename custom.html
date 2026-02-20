@@ -173,7 +173,7 @@ function createCrypticClue({ answer, clue, index }) {
             e.preventDefault();
             const next = getValidBox(idx, 1);
             if (next) next.focus();
-        } else if (e.key === "Enter" {
+        } else if (e.key === "Enter") {
             e.preventDefault();
             checkAnswer();
         }
@@ -374,7 +374,7 @@ function createCrypticClue({ answer, clue, index }) {
         clues.push(message);
     }
 
-    checkBtn.addEventListener("click", checkAnswer());
+    checkBtn.addEventListener("click", checkAnswer);
     
     function checkAnswer() {
         const guess = boxes.map(b => b.value === "-" ? " " : b.value).join("");
