@@ -173,6 +173,9 @@ function createCrypticClue({ answer, clue, index }) {
             e.preventDefault();
             const next = getValidBox(idx, 1);
             if (next) next.focus();
+        } else if (e.key === "Enter" {
+            e.preventDefault();
+            checkAnswer();
         }
 
         updateCheckEnabled();
@@ -371,35 +374,38 @@ function createCrypticClue({ answer, clue, index }) {
         clues.push(message);
     }
 
-    checkBtn.addEventListener("click", () => {
-    const guess = boxes.map(b => b.value === "-" ? " " : b.value).join("");
-    const correct = guess.toLowerCase() === answer.toLowerCase();
-
-    if (!correct) {
-        // shake animation
-        row.classList.remove("shake");
-        void row.offsetWidth;
-        row.classList.add("shake");
-
-        setTimeout(() => {
-        row.classList.remove("shake");
-        }, 250);
-    } else {
-        const buttonRow = root.querySelector(".buttonRow");
-        buttonRow.classList.add("hidden");
-        hintBtnRow.classList.add("hidden");
-        mnBtnRow.classList.add("hidden");
-
-        boxes.forEach(element => {
-            element.style.backgroundColor = "#f9a8d4";
-            element.disabled = true;
-        });
-
-        solved[index] = true;
-
-        const puzzleData = JSON.parse(atob(urlParams.get("puzzle").replace(/ /g, '+')));
-        updateMessages({ par: puzzleData.par || NaN, hintsUsed: getHints() });
-    }});
+    checkBtn.addEventListener("click", checkAnswer());
+    
+    function checkAnswer() {
+        const guess = boxes.map(b => b.value === "-" ? " " : b.value).join("");
+        const correct = guess.toLowerCase() === answer.toLowerCase();
+    
+        if (!correct) {
+            // shake animation
+            row.classList.remove("shake");
+            void row.offsetWidth;
+            row.classList.add("shake");
+    
+            setTimeout(() => {
+            row.classList.remove("shake");
+            }, 250);
+        } else {
+            const buttonRow = root.querySelector(".buttonRow");
+            buttonRow.classList.add("hidden");
+            hintBtnRow.classList.add("hidden");
+            mnBtnRow.classList.add("hidden");
+    
+            boxes.forEach(element => {
+                element.style.backgroundColor = "#f9a8d4";
+                element.disabled = true;
+            });
+    
+            solved[index] = true;
+    
+            const puzzleData = JSON.parse(atob(urlParams.get("puzzle").replace(/ /g, '+')));
+            updateMessages({ par: puzzleData.par || NaN, hintsUsed: getHints() });
+        }
+    }
 
     function updateCheckEnabled() {
         const allFilled = boxes.every(b => b.value.trim().length === 1);
