@@ -144,6 +144,10 @@ body {
       background: white;
     }
 
+    .separator {
+      background: #e2e6ea;
+    }
+
     .letter-box:last-child {
       border-right: none;
     }
